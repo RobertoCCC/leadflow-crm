@@ -1,15 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
   Bell,
-  Building2,
   CalendarClock,
   Check,
   ChevronRight,
   CircleDollarSign,
   ClipboardList,
+  Download,
   Filter,
+  History,
   LayoutDashboard,
   Mail,
   Menu,
@@ -18,7 +19,6 @@ import {
   Search,
   Sparkles,
   Target,
-  UserRound,
   Users,
   X,
 } from "lucide-react";
@@ -47,8 +47,74 @@ const sourceOptions: LeadSource[] = [
   "Campanha",
 ];
 
+const storageKeys = {
+  leads: "leadflow-crm:leads:v1",
+  tasks: "leadflow-crm:tasks:v1",
+};
+
 function formatCurrency(value: number) {
   return currency.format(value);
+}
+
+function readStoredState<T>(key: string, fallback: T): T {
+  try {
+    const value = window.localStorage.getItem(key);
+    return value ? (JSON.parse(value) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeStoredState<T>(key: string, value: T) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // A demo continua funcional mesmo se o browser bloquear storage.
+  }
+}
+
+function csvCell(value: string | number) {
+  return `"${String(value).replaceAll('"', '""')}"`;
+}
+
+function exportLeadsCsv(leads: Lead[]) {
+  const headers = [
+    "Empresa",
+    "Contacto",
+    "Email",
+    "Telefone",
+    "Fase",
+    "Valor",
+    "Probabilidade",
+    "Origem",
+    "Dono",
+    "Cidade",
+    "Proximo passo",
+  ];
+  const rows = leads.map((lead) => [
+    lead.company,
+    lead.contact,
+    lead.email,
+    lead.phone,
+    getStageLabel(lead.stage),
+    lead.value,
+    `${lead.probability}%`,
+    lead.source,
+    lead.owner,
+    lead.city,
+    lead.nextStep,
+  ]);
+
+  const csv = [headers, ...rows]
+    .map((row) => row.map(csvCell).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "leadflow-leads.csv";
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 function initials(name: string) {
@@ -70,8 +136,12 @@ function getStageLabel(stage: StageId) {
 }
 
 export function App() {
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [leads, setLeads] = useState<Lead[]>(() =>
+    readStoredState(storageKeys.leads, initialLeads),
+  );
+  const [tasks, setTasks] = useState<Task[]>(() =>
+    readStoredState(storageKeys.tasks, initialTasks),
+  );
   const [selectedLeadId, setSelectedLeadId] = useState(initialLeads[1].id);
   const [query, setQuery] = useState("");
   const [activeStage, setActiveStage] = useState<StageId | "all">("all");
@@ -79,6 +149,14 @@ export function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const selectedLead = leads.find((lead) => lead.id === selectedLeadId) ?? leads[0];
+
+  useEffect(() => {
+    writeStoredState(storageKeys.leads, leads);
+  }, [leads]);
+
+  useEffect(() => {
+    writeStoredState(storageKeys.tasks, tasks);
+  }, [tasks]);
 
   const metrics = useMemo(() => {
     const openLeads = leads.filter((lead) => lead.stage !== "won");
@@ -118,13 +196,28 @@ export function App() {
     });
   }, [activeStage, leads, query]);
 
+  const recentActivity = useMemo(
+    () =>
+      leads.slice(0, 5).map((lead) => ({
+        id: lead.id,
+        title: lead.lastActivity,
+        meta: `${lead.company} · ${getStageLabel(lead.stage)}`,
+      })),
+    [leads],
+  );
+
   function moveLead(leadId: string) {
     setLeads((current) =>
       current.map((lead) => {
         if (lead.id !== leadId) return lead;
         const stage = nextStage(lead.stage);
         const probability = stages.find((item) => item.id === stage)?.probability;
-        return { ...lead, stage, probability: probability ?? lead.probability };
+        return {
+          ...lead,
+          stage,
+          probability: probability ?? lead.probability,
+          lastActivity: `Fase atualizada para ${getStageLabel(stage)}`,
+        };
       }),
     );
   }
@@ -371,10 +464,20 @@ export function App() {
                   <h2>Leads</h2>
                   <p>{filteredLeads.length} registos encontrados</p>
                 </div>
-                <button className="ghost-button" type="button">
-                  <Filter size={16} />
-                  Filtros
-                </button>
+                <div className="heading-actions">
+                  <button
+                    className="ghost-button"
+                    type="button"
+                    onClick={() => exportLeadsCsv(filteredLeads)}
+                  >
+                    <Download size={16} />
+                    Exportar CSV
+                  </button>
+                  <button className="ghost-button" type="button">
+                    <Filter size={16} />
+                    Filtros
+                  </button>
+                </div>
               </div>
 
               <div className="table-wrap">
@@ -527,6 +630,34 @@ export function App() {
                     </button>
                   );
                 })}
+              </div>
+            </section>
+
+            <section className="section-block activity-panel">
+              <div className="section-heading compact">
+                <div>
+                  <h2>Atividade recente</h2>
+                  <p>Últimos movimentos do pipeline</p>
+                </div>
+              </div>
+
+              <div className="activity-list">
+                {recentActivity.map((activity) => (
+                  <button
+                    className="activity-item"
+                    type="button"
+                    key={activity.id}
+                    onClick={() => setSelectedLeadId(activity.id)}
+                  >
+                    <span className="activity-icon">
+                      <History size={15} />
+                    </span>
+                    <span>
+                      <strong>{activity.title}</strong>
+                      <small>{activity.meta}</small>
+                    </span>
+                  </button>
+                ))}
               </div>
             </section>
           </aside>

@@ -2,6 +2,10 @@
 
 Demo de CRM comercial para PMEs. O objetivo é mostrar um fluxo de vendas completo, desde a entrada de leads até ao fecho de negócios, com pipeline, métricas comerciais, tarefas e detalhe de oportunidade.
 
+## Demo online
+
+[https://leadflow-crm.vercel.app](https://leadflow-crm.vercel.app)
+
 ## Funcionalidades
 
 - Dashboard com pipeline aberto, previsão ponderada, negócios ganhos e tarefas pendentes
@@ -10,6 +14,9 @@ Demo de CRM comercial para PMEs. O objetivo é mostrar um fluxo de vendas comple
 - Detalhe da oportunidade selecionada
 - Tarefas de follow-up com estado concluído/pendente
 - Criação rápida de novo lead com dados locais
+- Exportação CSV dos leads filtrados
+- Persistência local no browser para leads e tarefas
+- Atividade recente do pipeline
 
 ## Stack
 

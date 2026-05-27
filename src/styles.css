@@ -336,6 +336,13 @@ h2 {
   align-items: center;
 }
 
+.heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .section-heading p {
   margin-bottom: 0;
   color: #736e64;
@@ -674,12 +681,14 @@ th {
   color: #5f5b52;
 }
 
-.task-list {
+.task-list,
+.activity-list {
   display: grid;
   gap: 8px;
 }
 
-.task-item {
+.task-item,
+.activity-item {
   display: grid;
   grid-template-columns: 28px 1fr;
   gap: 10px;
@@ -694,7 +703,8 @@ th {
   text-align: left;
 }
 
-.task-check {
+.task-check,
+.activity-icon {
   display: grid;
   place-items: center;
   width: 24px;
@@ -703,6 +713,12 @@ th {
   border-radius: 6px;
   color: #fff;
   background: #fffdf8;
+}
+
+.activity-icon {
+  color: #1f7a72;
+  background: #e7f1ef;
+  border-color: #d5e6e2;
 }
 
 .task-done {
@@ -714,10 +730,16 @@ th {
   background: #1f7a72;
 }
 
-.task-item small {
+.task-item small,
+.activity-item small {
   display: block;
   margin-top: 3px;
   color: #736e64;
+}
+
+.activity-item strong {
+  display: block;
+  line-height: 1.25;
 }
 
 .modal-backdrop {
