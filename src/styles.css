@@ -310,6 +310,10 @@ h2 {
   align-items: start;
 }
 
+.content-grid > * {
+  min-width: 0;
+}
+
 .workspace {
   display: grid;
   gap: 18px;
@@ -317,6 +321,7 @@ h2 {
 }
 
 .section-block {
+  min-width: 0;
   padding: 18px;
 }
 
@@ -368,6 +373,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(5, minmax(188px, 1fr));
   gap: 10px;
+  max-width: 100%;
   overflow-x: auto;
   padding-bottom: 4px;
 }
@@ -580,11 +586,15 @@ th {
 .right-rail {
   display: grid;
   gap: 18px;
+  width: 100%;
+  min-width: 0;
   position: sticky;
   top: 24px;
 }
 
 .detail-panel {
+  min-width: 0;
+  overflow: hidden;
   padding: 18px;
 }
 
@@ -618,7 +628,7 @@ th {
 
 .contact-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   margin: 14px 0;
 }
@@ -629,6 +639,7 @@ th {
   justify-content: center;
   gap: 8px;
   min-height: 38px;
+  min-width: 0;
   border: 1px solid #ddd6c9;
   border-radius: 8px;
   font-weight: 800;
@@ -648,6 +659,7 @@ th {
 .detail-list dd {
   margin: 0;
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .tag-row {
