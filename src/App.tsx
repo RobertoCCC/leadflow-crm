@@ -364,24 +364,28 @@ export function App() {
             value={formatCurrency(metrics.pipeline)}
             hint={`${metrics.openCount} oportunidades ativas`}
             icon={<CircleDollarSign size={20} />}
+            tone="primary"
           />
           <MetricCard
             label="Previsão ponderada"
             value={formatCurrency(metrics.forecast)}
             hint="Com base na probabilidade por fase"
             icon={<Target size={20} />}
+            tone="forecast"
           />
           <MetricCard
             label="Negócios ganhos"
             value={formatCurrency(metrics.wonValue)}
             hint={`${metrics.wonCount} negócio fechado este mês`}
             icon={<Check size={20} />}
+            tone="won"
           />
           <MetricCard
             label="Tarefas pendentes"
             value={String(metrics.pendingTasks)}
             hint={`Ticket médio ${formatCurrency(metrics.avgDeal)}`}
             icon={<CalendarClock size={20} />}
+            tone="tasks"
           />
         </section>
 
@@ -442,9 +446,20 @@ export function App() {
                           >
                             <span className="deal-topline">
                               <strong>{lead.company}</strong>
-                              <span>{lead.probability}%</span>
+                              <span className={`deal-probability ${stageAccent[lead.stage]}`}>
+                                {lead.probability}%
+                              </span>
                             </span>
                             <span className="deal-contact">{lead.contact}</span>
+                            <span
+                              className="deal-progress"
+                              aria-hidden
+                            >
+                              <span
+                                className={`deal-progress-fill ${stageAccent[lead.stage]}`}
+                                style={{ width: `${lead.probability}%` }}
+                              />
+                            </span>
                             <span className="deal-bottom">
                               <span>{formatCurrency(lead.value)}</span>
                               <span>{lead.city}</span>
@@ -729,23 +744,29 @@ export function App() {
   );
 }
 
+type MetricTone = "primary" | "forecast" | "won" | "tasks";
+
 function MetricCard({
   label,
   value,
   hint,
   icon,
+  tone,
 }: {
   label: string;
   value: string;
   hint: string;
   icon: React.ReactNode;
+  tone: MetricTone;
 }) {
   return (
-    <article className="metric-card">
-      <div className="metric-icon">{icon}</div>
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <p>{hint}</p>
+    <article className={`metric-card metric-${tone}`}>
+      <div className="metric-card-head">
+        <span className="metric-label">{label}</span>
+        <div className="metric-icon">{icon}</div>
+      </div>
+      <strong className="metric-value">{value}</strong>
+      <p className="metric-hint">{hint}</p>
     </article>
   );
 }
