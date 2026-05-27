@@ -4,7 +4,7 @@ Demo de CRM comercial para PMEs. O objetivo é mostrar um fluxo de vendas comple
 
 ## Demo online
 
-[https://leadflow-crm.vercel.app](https://leadflow-crm.vercel.app)
+[https://leadflow-crm-lime.vercel.app](https://leadflow-crm-lime.vercel.app)
 
 ## Funcionalidades
 
