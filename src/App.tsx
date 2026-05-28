@@ -89,7 +89,7 @@ function exportLeadsCsv(leads: Lead[]) {
     "Origem",
     "Dono",
     "Cidade",
-    "Proximo passo",
+    "Próximo passo",
   ];
   const rows = leads.map((lead) => [
     lead.company,
